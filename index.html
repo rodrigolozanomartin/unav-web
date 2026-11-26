@@ -108,55 +108,28 @@ const CARPETA_TAREAS = {
   descripcion: "Tareas, ensayos"
 };
 
-/* Tareas que aparecen dentro de la carpeta, en este orden.
-   - fecha: lo que sale debajo del título ("Fecha de entrega: ...")
-   - instrucciones: lo que se ve al pulsar la tarea (HTML)
-   - imagen: opcional, se muestra dentro de la tarea */
+/* Tareas que aparecen dentro de la carpeta, en este orden (no se pueden pulsar).
+   - fecha: lo que sale debajo del título ("Fecha de entrega: ...") */
 const TAREAS = [
   {
     titulo: "Retos creativos",
-    fecha: "11/12/26 22:59 (GMT)",
-    instrucciones: `
-      <p>Cada semana os propondré un reto creativo breve. Subid aquí vuestras respuestas (foto, escaneo o archivo) antes de la fecha de entrega.</p>
-      <ul>
-        <li><strong>Reto 1: 30 círculos.</strong> Convierte 30 círculos en 30 dibujos distintos en solo 3 minutos.</li>
-        <li><strong>Reto 2: Historia en seis palabras.</strong> Escribe cinco microrrelatos de exactamente seis palabras cada uno.</li>
-        <li><strong>Reto 3: Un día sin pantallas.</strong> Pasa 24 horas sin pantallas y cuenta qué ideas surgieron durante ese tiempo.</li>
-      </ul>`
+    fecha: "11/12/26 22:59 (GMT)"
   },
   {
     titulo: "Visitas culturales",
-    fecha: "18/12/26 22:59 (GMT)",
-    imagen: "img/museo.jpg",
-    instrucciones: `
-      <p>Tras cada visita, elegid una obra o un detalle que os haya provocado algo y escribid una reflexión de una página sobre lo que os ha inspirado y cómo podríais llevarlo a vuestros proyectos.</p>
-      <ul>
-        <li>Visita al Museo Universidad de Navarra.</li>
-        <li>Paseo fotográfico por el casco antiguo: 10 fotografías sobre el tema «lo que nadie mira».</li>
-      </ul>`
+    fecha: "18/12/26 22:59 (GMT)"
   },
   {
     titulo: "Entrega de proyectos de clase",
-    fecha: "5/3/27 22:59 (GMT)",
-    instrucciones: `
-      <p>Subid aquí los proyectos trabajados en clase. Recordad documentar el proceso: idea inicial, bocetos, versiones y decisiones.</p>
-      <ul>
-        <li><strong>Proyecto 1: Mapa de mis bloqueos.</strong> Representa visualmente qué te bloquea al crear y por qué. Formato libre.</li>
-        <li><strong>Proyecto 2: Reinventa un objeto cotidiano.</strong> Propón tres usos nuevos aplicando la técnica SCAMPER.</li>
-        <li><strong>Proyecto final: Presentación creativa.</strong> Presenta en clase un proyecto creativo propio (máx. 10 minutos).</li>
-      </ul>`
+    fecha: "5/3/27 22:59 (GMT)"
   },
   {
     titulo: "Charlas con alumni UNAV o empresas",
-    fecha: "19/2/27 22:59 (GMT)",
-    instrucciones: `
-      <p>Después de cada charla (Creative Talks), entregad tres ideas que hayáis sacado y cómo las aplicaríais a vuestro proyecto. Preparad también dos preguntas para el ponente antes de la sesión.</p>`
+    fecha: "19/2/27 22:59 (GMT)"
   },
   {
     titulo: "Cuaderno clandestino",
-    fecha: "12/3/27 22:59 (GMT)",
-    instrucciones: `
-      <p>Subid fotos o escaneos de las páginas de vuestro Cuaderno clandestino: ideas, bocetos, recortes y hallazgos. En la entrega final, añadid una página de conclusiones personales.</p>`
+    fecha: "12/3/27 22:59 (GMT)"
   }
 ];
 
@@ -272,8 +245,7 @@ const AVISOS_CALIFICACIONES = 0;
   .child{padding:12px 30px 12px 47px}
   .child:first-child{padding-top:22px}
   .child:last-child{padding-bottom:24px}
-  .child .title{font-size:16px;font-weight:600;cursor:pointer}
-  .child .title:hover{text-decoration:underline}
+  .child .title{font-size:16px;font-weight:600}
   .child .meta{font-size:13px;color:var(--text);margin-top:4px}
   .folder-inner > div:first-child{border-top:1px solid var(--border)}
 
@@ -622,9 +594,9 @@ const AVISOS_CALIFICACIONES = 0;
     </li>`;
   });
 
-  const tareas = TAREAS.map((t, i) => `
+  const tareas = TAREAS.map(t => `
       <div class="child">
-        <div class="row-line">${ICON.assign}<span class="title" data-task="${i}" role="button" tabindex="0">${esc(t.titulo)}</span></div>
+        <div class="row-line">${ICON.assign}<span class="title">${esc(t.titulo)}</span></div>
         <div class="meta">Fecha de entrega: ${esc(t.fecha)}</div>
       </div>`).join("");
   html += `
@@ -640,15 +612,13 @@ const AVISOS_CALIFICACIONES = 0;
 
   // Desplegar carpetas
   list.addEventListener("click", e => {
-    const task = e.target.closest("[data-task]");
-    if (task) return openTask(TAREAS[task.dataset.task]);
     const row = e.target.closest("[data-toggle]");
     if (!row) return;
     const open = row.parentNode.classList.toggle("open");
     row.setAttribute("aria-expanded", open);
   });
   list.addEventListener("keydown", e => {
-    if ((e.key === "Enter" || e.key === " ") && e.target.matches(".row.clickable, [data-task]")) {
+    if ((e.key === "Enter" || e.key === " ") && e.target.matches(".row.clickable")) {
       e.preventDefault(); e.target.click();
     }
   });
@@ -695,17 +665,6 @@ const AVISOS_CALIFICACIONES = 0;
   document.addEventListener("keydown", e => { if (e.key === "Escape") closeLayer(); });
 
   $("guiaBtn").onclick = () => openLayer("Guía docente", GUIA_DOCENTE, "gd");
-
-  function openTask(t) {
-    const img = t.imagen ? `<img src="${esc(t.imagen)}" alt="${esc(t.titulo)}" onerror="this.remove()">` : "";
-    openLayer(t.titulo, `
-      <div class="task-doc">
-        <p class="due"><strong>Fecha de entrega:</strong> ${esc(t.fecha)}</p>
-        <h3>Instrucciones</h3>
-        ${t.instrucciones}
-        ${img}
-      </div>`, "");
-  }
 
   // Anuncios
   const STATE_UNREAD = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#262626" stroke-width="1.6"><circle cx="8" cy="8" r="6.5"/></svg>`;
