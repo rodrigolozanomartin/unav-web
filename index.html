@@ -175,6 +175,14 @@ const AVISOS_CALIFICACIONES = 0;
   .vsep{width:1px;height:24px;background:var(--bar-line);margin:0 16px 0 18px;flex-shrink:0}
   .course-name{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
   .spacer{flex:1}
+  .lock{display:none;margin-left:12px}
+  .tabs-wrap{position:relative}
+  .tabs-more{
+    display:none;position:absolute;right:0;top:1px;bottom:1px;width:36px;align-items:center;justify-content:center;
+    background:linear-gradient(to right,rgba(38,38,38,0),#262626 35%);
+  }
+  .tabs-wrap.more .tabs-more{display:flex}
+  .side-card h2 .chev{display:none}
   .pill{
     background:#fff;color:#046df6;border:1.5px solid #046df6;border-radius:10px;
     font-size:9px;font-weight:700;letter-spacing:.3px;line-height:1;padding:2.5px 6px 2px;
@@ -380,17 +388,52 @@ const AVISOS_CALIFICACIONES = 0;
 
   /* ---------- Responsive ---------- */
   @media (max-width:900px){
-    .layout{flex-direction:column;align-items:stretch;padding:20px 16px 80px}
-    .aside{width:auto}
+    .layout{flex-direction:column;align-items:stretch;gap:0;padding:16px 16px 80px}
+    .aside{width:auto;order:-1;margin-bottom:12px}
     .banner{height:150px}
     .banner h1{left:16px;font-size:22px}
+    /* Profesorado como desplegable arriba, como en la app real */
+    .side-card{padding:0}
+    .side-card h2{display:flex;align-items:center;justify-content:space-between;margin:0;padding:18px 18px;cursor:pointer;font-size:16px;font-weight:600}
+    .side-card h2 .chev{display:block;margin:0}
+    .side-card .side-body{display:none;padding:0 18px 18px}
+    .side-card.open .side-body{display:block}
+    .side-card.open h2 .chev{transform:rotate(180deg)}
+    .teacher{padding-left:0}
   }
   @media (max-width:600px){
-    .courses-dd span{display:none}
-    .help{display:none}
+    .topbar{padding:0 10px;font-size:13px}
+    .home{width:28px;height:28px}
+    .courses-dd{margin-left:12px;font-size:13px;gap:7px}
     .vsep{margin:0 12px}
-    .row{padding:12px 16px}
-    .child{padding-left:30px;padding-right:16px}
+    .course-name{font-size:13px}
+    .pill{display:none}
+    .lock{display:block}
+    .tabs{padding:0 6px;height:44px}
+    .tab{font-size:13px;padding:0 9px}
+    .badge{width:18px;height:18px;font-size:11px}
+    .banner{height:78px}
+    .banner h1{left:14px;right:14px;bottom:8px;font-size:15px;font-weight:600}
+    .layout{padding:16px 14px 80px}
+    .side-card h2{font-size:15px;padding:16px 14px}
+    .side-card .side-body{padding:0 14px 16px}
+    .section-head{height:auto;margin:14px 0 10px}
+    .section-head h2{font-size:15px;font-weight:600}
+    .section-head .search{margin-right:12px}
+    .content-list{gap:12px}
+    .row{min-height:56px;padding:12px 14px}
+    .row.has-desc{padding-top:16px;padding-bottom:16px}
+    .row .title{font-size:14px}
+    .row .desc{font-size:12px;margin-top:2px}
+    .row-line{gap:8px}
+    .row-line > svg{width:18px;height:20px}
+    .chev{margin-left:10px;width:14px;height:8px}
+    .child{padding:8px 14px 8px 30px}
+    .child:first-child{padding-top:16px}
+    .child:last-child{padding-bottom:16px}
+    .child .title{font-size:14px}
+    .child .meta{font-size:12px;margin-top:2px}
+    .help{right:14px;bottom:14px}
     .ann-table{margin:0 8px}
     .ann-th .col-date,.ann-row .col-date{width:96px;font-size:12px}
     .ann-toolbar{padding:0 16px}
@@ -422,8 +465,12 @@ const AVISOS_CALIFICACIONES = 0;
   <span class="course-name" id="topCourseName"></span>
   <span class="spacer"></span>
   <span class="pill">ABIERTO</span>
+  <span class="lock" aria-label="Abierto">
+    <svg width="16" height="18" viewBox="0 0 16 18" fill="none" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"><rect x="1.5" y="8" width="13" height="9" rx="1"/><path d="M4.5 8V5a3.5 3.5 0 0 1 6.9-.8"/></svg>
+  </span>
 </header>
 
+<div class="tabs-wrap">
 <nav class="tabs" id="tabs">
   <span class="tab clickable active" data-tab="portada" role="button" tabindex="0">Portada</span>
   <span class="tab">Calendario</span>
@@ -434,6 +481,10 @@ const AVISOS_CALIFICACIONES = 0;
   <span class="tab">Grupos</span>
   <span class="tab">Logros</span>
 </nav>
+<button class="tabs-more" id="tabsMore" aria-label="Más pestañas">
+  <svg width="10" height="16" viewBox="0 0 10 16" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2 2 6 6-6 6"/></svg>
+</button>
+</div>
 
 <section class="banner" id="banner">
   <svg viewBox="0 0 1919 200" preserveAspectRatio="xMinYMin slice" aria-hidden="true">
@@ -464,8 +515,11 @@ const AVISOS_CALIFICACIONES = 0;
   </main>
 
   <aside class="aside">
-    <div class="side-card">
-      <h2>Profesorado</h2>
+    <div class="side-card" id="sideCard">
+      <h2 id="sideToggle">Profesorado
+        <svg class="chev" width="18" height="10" viewBox="0 0 18 10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m1 1 8 8 8-8"/></svg>
+      </h2>
+      <div class="side-body">
       <div class="teacher">
         <img class="avatar" id="teacherPhoto" alt="">
         <div class="info">
@@ -475,6 +529,7 @@ const AVISOS_CALIFICACIONES = 0;
         <span class="mail" aria-hidden="true">
           <svg width="18" height="14" viewBox="0 0 18 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><rect x="1" y="1" width="16" height="12" rx=".5"/><path d="m1 1 8 6.5L17 1M1 13l6-5.2M17 13l-6-5.2"/></svg>
         </span>
+      </div>
       </div>
     </div>
   </aside>
@@ -622,6 +677,19 @@ const AVISOS_CALIFICACIONES = 0;
       e.preventDefault(); e.target.click();
     }
   });
+
+  // Profesorado desplegable (solo en móvil)
+  $("sideToggle").addEventListener("click", () => $("sideCard").classList.toggle("open"));
+
+  // Flecha ">" de las pestañas en pantallas estrechas
+  const tabsEl = $("tabs"), tabsWrap = tabsEl.parentNode;
+  function checkTabs() {
+    tabsWrap.classList.toggle("more", tabsEl.scrollLeft + tabsEl.clientWidth < tabsEl.scrollWidth - 2);
+  }
+  tabsEl.addEventListener("scroll", checkTabs);
+  window.addEventListener("resize", checkTabs);
+  checkTabs();
+  $("tabsMore").onclick = () => tabsEl.scrollBy({ left: 160, behavior: "smooth" });
 
   // Vistas: Portada / Anuncios
   const tabs = document.querySelectorAll(".tab");
